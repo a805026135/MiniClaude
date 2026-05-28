@@ -80,6 +80,7 @@ class DesktopApp:
         self._ready = False
         self._busy = False
         self._loop: asyncio.AbstractEventLoop | None = None
+        self._task: Any = None         # running asyncio task (for cancel)
         self._placeholder = True
         self._thinking_id: str | None = None   # after-id for animation
         self._dots = 0
@@ -245,7 +246,7 @@ class DesktopApp:
             fg=T.FG_BRIGHT, bg=T.ACCENT, padx=18, pady=18, cursor="hand2",
         )
         self._send_btn.pack()
-        self._send_btn.bind("<Button-1>", lambda e: self._on_send())
+        self._send_btn.bind("<Button-1>", lambda e: self._on_btn_click())
         self._send_btn.bind("<Enter>",
                             lambda e: self._send_btn.configure(bg=T.ACCENT_HOV) if not self._busy else None)
         self._send_btn.bind("<Leave>",
@@ -416,6 +417,12 @@ class DesktopApp:
 
     # ────────────────────────────── Events ────────────────────────
 
+    def _on_btn_click(self):
+        if self._busy:
+            self._on_stop()
+        else:
+            self._on_send()
+
     def _on_send(self):
         if self._busy:
             return
@@ -430,10 +437,32 @@ class DesktopApp:
         self._show_user(text)
 
         self._busy = True
-        self._send_btn.configure(text=" ... ", bg=T.FG_DIM, cursor="arrow")
+        # Button → Stop (red)
+        self._send_btn.configure(text=" Stop ", bg=T.RED, cursor="hand2")
+        self._send_btn.bind("<Button-1>", lambda e: self._on_btn_click())
+        self._send_btn.bind("<Enter>",
+                            lambda e: self._send_btn.configure(bg="#ff4060"))
+        self._send_btn.bind("<Leave>",
+                            lambda e: self._send_btn.configure(bg=T.RED))
         self._set_status("Thinking ...")
         self._start_thinking()
         self._run_async(text)
+
+    def _on_stop(self):
+        """Cancel the running query."""
+        if not self._busy:
+            return
+        # Cancel the asyncio task
+        if self._task and not self._task.done():
+            self._task.cancel()
+        self._stop_thinking()
+        self._busy = False
+        self._task = None
+        # Restore Send button
+        self._restore_send_btn()
+        self._put("  [Stopped by user]", "sys")
+        self._set_status("Stopped   |   Ready")
+        self.root.after(50, self._focus_input)
 
     def _on_close(self):
         if self._busy:
@@ -485,21 +514,37 @@ class DesktopApp:
 
                 result = await self._app.run_query(text)
                 self.root.after(0, self._on_done, result)
+            except asyncio.CancelledError:
+                self.root.after(0, self._on_cancelled)
             except Exception as e:
                 logger.error("Query failed: %s", e, exc_info=True)
                 self.root.after(0, self._on_err, str(e))
 
         if self._loop:
-            asyncio.run_coroutine_threadsafe(go(), self._loop)
+            self._task = asyncio.run_coroutine_threadsafe(go(), self._loop)
+
+    def _on_cancelled(self):
+        """Called when task is cancelled from stop button."""
+        pass  # _on_stop already handled UI reset
 
     def _on_init(self):
         if self._app and self._app.config:
             self._model_lbl.configure(text=self._app.config.model)
 
+    def _restore_send_btn(self):
+        """Restore button to Send state."""
+        self._send_btn.configure(text="  Send  ", bg=T.ACCENT, cursor="hand2")
+        self._send_btn.bind("<Button-1>", lambda e: self._on_btn_click())
+        self._send_btn.bind("<Enter>",
+                            lambda e: self._send_btn.configure(bg=T.ACCENT_HOV) if not self._busy else None)
+        self._send_btn.bind("<Leave>",
+                            lambda e: self._send_btn.configure(bg=T.ACCENT) if not self._busy else None)
+
     def _on_done(self, result):
         self._stop_thinking()
         self._busy = False
-        self._send_btn.configure(text="  Send  ", bg=T.ACCENT, cursor="hand2")
+        self._task = None
+        self._restore_send_btn()
         if self._app and self._app.query_loop:
             u = self._app.query_loop.token_usage
             self._set_status(
@@ -512,7 +557,8 @@ class DesktopApp:
     def _on_err(self, err):
         self._stop_thinking()
         self._busy = False
-        self._send_btn.configure(text="  Send  ", bg=T.ACCENT, cursor="hand2")
+        self._task = None
+        self._restore_send_btn()
         self._show_error(err)
         self._set_status(f"Error: {err[:60]}")
         self.root.after(50, self._focus_input)
