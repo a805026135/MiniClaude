@@ -170,29 +170,29 @@ class DesktopApp:
                                  font=FONT, foreground=Theme.FG_BRIGHT,
                                  background=Theme.USER_BUBBLE,
                                  lmargin1=24, lmargin2=24, rmargin=120,
-                                 padx=14, pady=10, spacing1=2, spacing3=2)
+                                 spacing1=6, spacing3=8)
         self._chat.tag_configure("ai_msg",
                                  font=FONT, foreground=Theme.FG,
                                  background=Theme.AI_BUBBLE,
                                  lmargin1=24, lmargin2=24, rmargin=24,
-                                 padx=14, pady=10, spacing1=2, spacing3=2)
+                                 spacing1=6, spacing3=8)
 
         # Tool call line
         self._chat.tag_configure("tool_running",
                                  font=FONT_CODE, foreground=Theme.ORANGE,
                                  lmargin1=40, lmargin2=40,
                                  background="#1a1a10",
-                                 padx=8, pady=3)
+                                 spacing1=3, spacing3=3)
         self._chat.tag_configure("tool_ok",
                                  font=FONT_CODE, foreground=Theme.GREEN,
                                  lmargin1=40, lmargin2=40,
                                  background="#0f1a14",
-                                 padx=8, pady=3)
+                                 spacing1=3, spacing3=3)
         self._chat.tag_configure("tool_err",
                                  font=FONT_CODE, foreground=Theme.RED,
                                  lmargin1=40, lmargin2=40,
                                  background="#1a0f14",
-                                 padx=8, pady=3)
+                                 spacing1=3, spacing3=3)
         self._chat.tag_configure("tool_preview",
                                  font=FONT_SMALL, foreground=Theme.FG_DIM,
                                  lmargin1=56, lmargin2=56)
