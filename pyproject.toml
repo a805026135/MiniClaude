@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "miniclaude"
+version = "0.1.0"
+description = "A Claude Code-like AI Coding Agent powered by Anthropic Claude API"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "MiniClaude Team" },
+]
+keywords = ["ai", "agent", "coding", "claude", "tool-use"]
+
+dependencies = [
+    "openai>=1.50.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "rich>=13.0",
+    "typer>=0.12",
+    "tiktoken>=0.7",
+    "aiosqlite>=0.20",
+    "python-dotenv>=1.0",
+    "prompt-toolkit>=3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+miniclaude = "miniclaude.__main__:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["miniclaude"]

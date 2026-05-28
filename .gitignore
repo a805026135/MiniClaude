@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+
+# Runtime data
+data/memory/
+data/sessions/
+data/externalized/
+
+# Unrelated projects
+accountant/
+ACCOUNTANT_*.md
+accountant.bat
+install_accountant.py
+
+# OS
+.DS_Store
+Thumbs.db
