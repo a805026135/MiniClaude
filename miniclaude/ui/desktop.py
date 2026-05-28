@@ -94,6 +94,9 @@ class DesktopApp:
         self._start_async_thread()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
+        # Auto-focus input after window renders
+        self.root.after(100, self._focus_input)
+
     # ──────────────────────────────────────────────────────────────
     #  Toolbar
     # ──────────────────────────────────────────────────────────────
@@ -228,8 +231,9 @@ class DesktopApp:
         # Input field wrapper
         wrapper = tk.Frame(row, bg=Theme.BORDER_ACCENT, bd=0,
                            highlightthickness=1, highlightbackground=Theme.BORDER,
-                           highlightcolor=Theme.ACCENT)
+                           highlightcolor=Theme.ACCENT, cursor="xterm")
         wrapper.pack(side="left", fill="both", expand=True, padx=(0, 10))
+        wrapper.bind("<Button-1>", lambda e: self._focus_input())
 
         self._input = tk.Text(
             wrapper, font=FONT, fg=Theme.FG, bg=Theme.INPUT_BG,
@@ -380,6 +384,12 @@ class DesktopApp:
         self._set_status("Thinking ...")
         self._run_async(text)
 
+    def _focus_input(self) -> None:
+        """Set focus to the input field."""
+        self._input.focus_set()
+        if self._input_placeholder:
+            self._input.configure(fg=Theme.FG_DIM)
+
     def _on_close(self) -> None:
         if self._is_running:
             if not messagebox.askokcancel("Quit", "Query is running. Quit?"):
@@ -396,6 +406,8 @@ class DesktopApp:
         self._chat.configure(state="disabled")
         self._show_welcome()
         self._set_status("New session started")
+        self._show_placeholder()
+        self.root.after(50, self._focus_input)
 
     def _clear_chat(self) -> None:
         self._chat.configure(state="normal")
@@ -451,12 +463,14 @@ class DesktopApp:
                 f"Tokens {u.get('input_tokens',0):,} in + {u.get('output_tokens',0):,} out  |  "
                 f"iter {self._mini_app.query_loop.iteration_count}  |  Ready"
             )
+        self.root.after(50, self._focus_input)
 
     def _on_error(self, err: str) -> None:
         self._is_running = False
         self._send_btn.configure(text="  Send  ", bg=Theme.ACCENT, cursor="hand2")
         self._show_error(err)
         self._set_status(f"Error: {err[:60]}")
+        self.root.after(50, self._focus_input)
 
     # ── Callbacks (from async thread → main thread) ───────────
 
