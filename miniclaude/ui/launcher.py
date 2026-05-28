@@ -10,15 +10,15 @@ from pathlib import Path
 
 
 # ── Shared Theme ────────────────────────────────────────────────
-BG       = "#0f0f17"
-FG       = "#e8e8f0"
-FG_DIM   = "#9898b0"
-SURFACE  = "#1a1a28"
-ELEVATED = "#242438"
-HOVER    = "#2d2d48"
-ACCENT   = "#6c8cff"
-GREEN    = "#50d890"
-BORDER   = "#2a2a42"
+BG       = "#0b0b14"
+FG       = "#e4e4f0"
+FG_DIM   = "#8888aa"
+SURFACE  = "#14142a"
+ELEVATED = "#1e1e3a"
+HOVER    = "#282850"
+ACCENT   = "#7c9aff"
+GREEN    = "#5ee8a0"
+BORDER   = "#222244"
 
 
 def show_launcher() -> str:
