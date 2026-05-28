@@ -32,3 +32,4 @@ install_accountant.py
 # OS
 .DS_Store
 Thumbs.db
+launcher_debug.log

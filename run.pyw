@@ -11,6 +11,7 @@ Usage:
 
 import os
 import sys
+import traceback
 from pathlib import Path
 
 # Ensure we're in the project directory
@@ -28,19 +29,78 @@ except ImportError:
 # Set project dir env var
 os.environ["MINICLAUDE_PROJECT_DIR"] = str(project_dir)
 
+# Log file for debugging .pyw (no console)
+LOG_FILE = project_dir / "launcher_debug.log"
+
+
+def log(msg: str) -> None:
+    """Write to debug log."""
+    try:
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(msg + "\n")
+    except Exception:
+        pass
+
+
+def show_error(title: str, message: str) -> None:
+    """Show an error dialog."""
+    import tkinter as tk
+    from tkinter import messagebox
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(title, message)
+        root.destroy()
+    except Exception:
+        pass
+
 
 def main():
     """Show launcher dialog and start the selected mode."""
-    from miniclaude.ui.launcher import show_launcher, launch_cli
-    from miniclaude.ui.desktop import launch_desktop
+    log("=== Launcher started ===")
 
-    choice = show_launcher()
+    try:
+        from miniclaude.ui.launcher import show_launcher, launch_cli
+        log("launcher.py imported OK")
+    except Exception as e:
+        msg = f"Failed to import launcher:\n{traceback.format_exc()}"
+        log(msg)
+        show_error("MiniClaude - Import Error", msg)
+        return
+
+    try:
+        choice = show_launcher()
+        log(f"User chose: {choice}")
+    except Exception as e:
+        msg = f"Launcher dialog failed:\n{traceback.format_exc()}"
+        log(msg)
+        show_error("MiniClaude - Launcher Error", msg)
+        return
 
     if choice == "cli":
-        launch_cli()
+        log("Launching CLI...")
+        try:
+            launch_cli()
+            log("CLI launched OK")
+        except Exception as e:
+            msg = f"Failed to launch CLI:\n{traceback.format_exc()}"
+            log(msg)
+            show_error("MiniClaude - CLI Error", msg)
+
     elif choice == "gui":
-        launch_desktop()
-    # "exit" = user closed the dialog, do nothing
+        log("Launching Desktop GUI...")
+        try:
+            from miniclaude.ui.desktop import launch_desktop
+            log("desktop.py imported OK")
+            launch_desktop()
+            log("Desktop exited normally")
+        except Exception as e:
+            msg = f"Desktop GUI failed:\n{traceback.format_exc()}"
+            log(msg)
+            show_error("MiniClaude - Desktop Error", msg)
+
+    else:
+        log("User exited")
 
 
 if __name__ == "__main__":

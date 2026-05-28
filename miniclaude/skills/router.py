@@ -122,6 +122,7 @@ class SkillRouter:
                 "debug": ["debug", "调试", "fix", "bug", "error", "错误"],
                 "test": ["test", "测试", "spec", "单元测试"],
                 "explain": ["explain", "解释", "what does", "how does", "说明"],
+                "code_gen": ["generate", "create", "write", "implement", "生成", "创建", "编写", "实现", "开发", "编程", "coding"],
             }
             for skill_intent, keywords in intent_keywords.items():
                 if skill_intent in skill.name.lower() or skill_intent in skill.meta.tags:
