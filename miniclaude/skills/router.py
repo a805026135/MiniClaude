@@ -123,6 +123,9 @@ class SkillRouter:
                 "test": ["test", "测试", "spec", "单元测试"],
                 "explain": ["explain", "解释", "what does", "how does", "说明"],
                 "code_gen": ["generate", "create", "write", "implement", "生成", "创建", "编写", "实现", "开发", "编程", "coding"],
+                "code_analysis": ["analyze", "analysis", "complexity", "quality", "metrics", "inspect", "examine", "audit", "assess", "分析", "复杂度", "质量", "检查", "评估", "审查"],
+                "code_document": ["document", "documentation", "docstring", "comment", "readme", "docs", "文档", "注释", "说明"],
+                "security_scan": ["security", "vulnerability", "scan", "audit", "penetration", "injection", "xss", "csrf", "安全", "漏洞", "扫描", "审计", "注入"],
             }
             for skill_intent, keywords in intent_keywords.items():
                 if skill_intent in skill.name.lower() or skill_intent in skill.meta.tags:
