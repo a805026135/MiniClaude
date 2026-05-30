@@ -117,7 +117,8 @@ def launch_cli() -> None:
 
     if sys.platform == "win32":
         subprocess.Popen(
-            ["cmd", "/k", "cd", "/d", str(project_dir),
+            ["cmd", "/k", "chcp 65001 >nul",
+             "&&", "cd", "/d", str(project_dir),
              "&&", "python", "-m", "miniclaude"],
             creationflags=subprocess.CREATE_NEW_CONSOLE,
             cwd=str(project_dir),
